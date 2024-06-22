@@ -1,1 +1,1 @@
-# Backup repository for my hashnode articles
+# Backup repository for my [usualtech](https://usualtech.hashnode.dev/) articles
