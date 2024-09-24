@@ -10,11 +10,11 @@ tags: productivity, slack, devops, jenkins, developer-tools, devex
 
 ---
 
-One of the biggest blockers to developer productivity is context switching—constantly jumping between CI/CD pipelines, source control, task tracker, and observability tools.
+One of the biggest blockers to developer productivity is context switching — constantly jumping between CI/CD pipelines, source control, task tracker, and observability tools.
 
 While some platforms offer plugins to bridge the gaps, they’re often limited in scope. Critical features can be missing, forcing developers to toggle between tools and workflows.
 
-Fortunately, most of these tools offer APIs, so we can build custom integrations that align with our needs. Through my engineering experience, I’ve found that Slack is an ideal hub for automating tasks. With its powerful API and SDK, we can create custom UIs, commands, and workflows—all within the chat interface teams already use.
+Fortunately, most of these tools offer APIs, so we can build custom integrations that align with our needs. Through my engineering experience, I’ve found that Slack is an ideal hub for automating tasks. With its powerful API and SDK, we can create custom UIs, commands, and workflows — all within the chat interface teams already use.
 
 In this article, we’ll leverage the [Slack Bolt SDK](https://api.slack.com/bolt) to manage pipeline executions without leaving the Slack interface.
 
