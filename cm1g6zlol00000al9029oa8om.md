@@ -10,31 +10,29 @@ tags: productivity, slack, devops, jenkins, developer-tools, devex
 
 ---
 
-One of the biggest challenges to developer productivity is context switching, which is caused by poorly integrated CI/CD, source control, task trackers, and observability tools.
+One of the biggest blockers to developer productivity is context switching—constantly jumping between CI/CD pipelines, source control, task tracker, and observability tools.
 
-Some systems use plugins for integration, but it's often limited. Sometimes, important features are missing, causing repeated switching between systems and manual work.
+While some platforms offer plugins to bridge the gaps, they’re often limited in scope. Critical features can be missing, forcing developers to toggle between tools and workflows.
 
-Fortunately, most of these systems have APIs, which let us create custom integrations to fit our needs. Over the years in engineering, I've found that Slack Messenger is often the best place for building automation. It has a comprehensive API and SDK, allowing the creation of custom UIs and commands.
+Fortunately, most of these tools offer APIs, so we can build custom integrations that align with our needs. Through my engineering experience, I’ve found that Slack is an ideal hub for automating tasks. With its powerful API and SDK, we can create custom UIs, commands, and workflows—all within the chat interface teams already use.
 
-In this article, we will leverage the official [Slack Bolt](https://api.slack.com/bolt) SDK to manage the execution of all kinds of Jenkins pipelines from Slack.
+In this article, we’ll leverage the [Slack Bolt SDK](https://api.slack.com/bolt) to manage pipeline executions without leaving the Slack interface.
 
-Here is a demo of one of the scenarios to give you an idea of what we'll implement. The user sends a command to Slack, selects a pipeline, and Slack displays a form with the pipeline's parameters. The user fills in the parameters and runs the pipeline by clicking the "Run" button.
+Here is a preview of one of the scenarios we'll implement. A user sends a Slack command, selects a pipeline, and Slack generates a form to capture pipeline parameters. Once the parameters are filled, the user clicks "Run," and the pipeline is triggered
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
 
-You can find the complete source from this article [here on GitHub](https://github.com/fshchudlo/jenkins-slack-connector).
-
-I used TypeScript, but Slack [also offers SDKs for Java and Python](https://slack.dev/).
+The full source code for this project is [available on GitHub](https://github.com/fshchudlo/jenkins-slack-connector), and while I used TypeScript, Slack also supports [Java and Python SDKs](https://slack.dev/) for similar implementations.
 
 # Preparing the Environment
 
 ### Registering a new Slack application
 
-First, we need to register a new application in Slack. I recommend creating a separate Slack workspace for testing purposes and following the ["Create an app" section](https://slack.dev/bolt-js/getting-started/#create-an-app) in the Slack Bolt getting started guide.
+To get started, we need to create a new Slack application. I recommend setting up a separate Slack workspace for testing and follow the ["Create an app"](https://slack.dev/bolt-js/getting-started/#create-an-app) section in the Slack Bolt Getting Started guide.
 
-To make things easier, you can import [a prepared manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) during configuration. It configures the minimal required scopes, enables event handling, and registers the required Slack command.
+You can import a [prepared manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) during configuration to streamline the process. This file will automatically configure the necessary scopes, enable event handling, and register the required Slack command.
 
-After registering and installing the app into the Slack workspace, we need to [obtain two tokens](https://slack.dev/bolt-js/getting-started/#tokens-and-installing-apps):
+Once you've registered and installed the app in your Slack workspace, you’ll need to obtain [two tokens](https://slack.dev/bolt-js/getting-started/#tokens-and-installing-apps):
 
 * **App Token** can be generated on the **Basic Information** page.
     
@@ -43,13 +41,13 @@ After registering and installing the app into the Slack workspace, we need to [o
 
 ### Bootstrapping an Application Repository
 
-You can simply clone [my repository](https://github.com/fshchudlo/jenkins-slack-connector) and follow the README.md. Alternatively, you can continue following the [Slack Bolt Getting Started guide](https://slack.dev/bolt-js/getting-started/#setting-up-your-project) to bootstrap the application.
+You can either [clone my repository](https://github.com/fshchudlo/jenkins-slack-connector) and follow the steps in README.md or continue with the [Slack Bolt guide](https://slack.dev/bolt-js/getting-started/#setting-up-your-project) to bootstrap the app manually.
 
-First, we need to install some npm dependencies:
+Start by installing the required npm dependencies:
 
 `npm install @slack/bolt axios dotenv ts-node typescript`
 
-Next, we need to set up the Slack Bolt app in `app.ts` file:
+Next, set up the Slack Bolt app in the `app.ts` file. Here’s an example setup:
 
 ```typescript
 import {App} from "@slack/bolt";
@@ -67,7 +65,7 @@ const app = new App({
 })();
 ```
 
-The `AppConfig` used above is just a simple wrapper around `process.env`:
+The `AppConfig` is a simple wrapper for environment variables:
 
 ```typescript
 import "dotenv/config";
@@ -84,34 +82,46 @@ export const AppConfig = {
 };
 ```
 
-To complete the configuration, export the Slack tokens from the previous step or place them into the `.env` file. The `SLACK_APP_TOKEN` variable is for the App token (starts with `xapp-`), while the `SLACK_BOT_TOKEN` is for the Bot token (starts with `xoxb-`).
+You'll also need to export the Slack tokens from the previous step or place them in the `.env` file:
+
+* `SLACK_APP_TOKEN` (App token, starts with `xapp-`)
+    
+* `SLACK_BOT_TOKEN` (Bot token, starts with `xoxb-`)
+    
 
 ### Preparing Jenkins
 
-First, we need to get the Jenkins token to access its API:
+Next, we need to configure Jenkins to allow API access. Follow these steps to get the required token:
 
 1. Log in to Jenkins.
     
-2. Click your name in the upper-right corner.
+2. Click your profile name in the upper-right corner.
     
-3. Click the **Configure** section in the left-hand menu.
+3. Navigate to **Configure** in the left-hand menu.
     
-4. Click the **Add New Token** button.
+4. Click the **Add New Token** button to generate a new token.
     
-5. Copy the generated token.
-    
-6. Put the generated token and your login into the `JENKINS_API_TOKEN` and `JENKINS_API_USER` variables. Also, put your Jenkins base URL to the `JENKINS_URL` variable.
+5. Copy the token for later use.
     
 
-Now, we need some pipelines to play. You can simply add these [three sample pipelines](https://github.com/fshchudlo/jenkins-slack-connector/tree/main/.assets/sample-pipelines) to your Jenkins.
+Now, store the token and your Jenkins login information in environment variables:
 
-So, we're ready to write some code!
+* `JENKINS_API_TOKEN` (your generated API token)
+    
+* `JENKINS_API_USER` (your Jenkins username)
+    
+* `JENKINS_URL` (base URL of your Jenkins instance)
+    
+
+Finally, to test your setup, you can add the following sample pipelines to Jenkins:
+
+Finally, we need some pipelines to play. You can simply add these [three sample pipelines](https://github.com/fshchudlo/jenkins-slack-connector/tree/main/.assets/sample-pipelines) to your Jenkins.
+
+Now that everything is set up, we’re ready to dive into the code!
 
 # Creating the First Slack Command
 
-The [manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) I provided before adds the `/run_jenkins_pipeline` command.
-
-Let's add the handler for this command and display the form to choose a Jenkins pipeline we want to run.
+The [manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) we used earlier adds a `/run_jenkins_pipeline` Slack command. Now, let’s write a handler for this command that will display a form allowing users to select and run a Jenkins pipeline.
 
 ```typescript
 app.command("/run_jenkins_pipeline", async ({ack, respond}) => {
@@ -133,39 +143,39 @@ app.command("/run_jenkins_pipeline", async ({ack, respond}) => {
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">Slack forms are built with <a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder" style="pointer-events: none">Slack Block Kit</a>. It's quite verbose, so I created builder functions like <code>divider</code>, <code>button</code>, and <code>cancelButton</code> to make the code compact. <a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder#%7B%22blocks%22:%5B%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22Please,%20choose%20pipeline%20to%20run%22%7D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22input%22,%22label%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Select%20an%20item%22%7D,%22element%22:%7B%22type%22:%22static_select%22,%22options%22:%5B%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Parameterless%20pipeline%20example%22%7D,%22value%22:%22job/parameterless-pipeline-example%22%7D,%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Parameterized%20pipeline%20example%22%7D,%22value%22:%22job/parameterized-pipeline-example%22%7D,%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Interactive%20pipeline%20example%22%7D,%22value%22:%22job/interactive-pipeline-example%22%7D%5D,%22action_id%22:%22pipeline_name%22%7D%7D,%7B%22type%22:%22actions%22,%22block_id%22:%22submit%22,%22elements%22:%5B%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Run%22%7D,%22style%22:%22primary%22,%22value%22:%22run_jenkins_pipeline%22,%22action_id%22:%22run_jenkins_pipeline%22%7D,%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Cancel%22%7D,%22style%22:%22danger%22,%22value%22:%22display_cancellation_message%22,%22action_id%22:%22display_cancellation_message%22%7D%5D%7D%5D%7D" style="pointer-events: none">Here is our form declaration</a> in pure Block Kit syntax. The link is&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder" style="pointer-events: none">Slack Block Kit Builder</a>, which I recommend you use to simplify form creation.</div>
+<div data-node-type="callout-text">Slack forms are built using <a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder" style="pointer-events: none">Slack Block Kit</a>, which can be quite verbose. To simplify things, I’ve created helper functions like <code>divider()</code>, <code>button()</code>, and <code>cancelButton()</code> to make the code more compact. If you're new to Block Kit, I recommend using the <a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder" style="pointer-events: none">Slack Block Kit Builder</a> to streamline form creation. <a target="_blank" rel="noopener noreferrer nofollow" href="https://app.slack.com/block-kit-builder#%7B%22blocks%22:%5B%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22Please,%20choose%20pipeline%20to%20run%22%7D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22input%22,%22label%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Select%20an%20item%22%7D,%22element%22:%7B%22type%22:%22static_select%22,%22options%22:%5B%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Parameterless%20pipeline%20example%22%7D,%22value%22:%22job/parameterless-pipeline-example%22%7D,%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Parameterized%20pipeline%20example%22%7D,%22value%22:%22job/parameterized-pipeline-example%22%7D,%7B%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Interactive%20pipeline%20example%22%7D,%22value%22:%22job/interactive-pipeline-example%22%7D%5D,%22action_id%22:%22pipeline_name%22%7D%7D,%7B%22type%22:%22actions%22,%22block_id%22:%22submit%22,%22elements%22:%5B%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Run%22%7D,%22style%22:%22primary%22,%22value%22:%22run_jenkins_pipeline%22,%22action_id%22:%22run_jenkins_pipeline%22%7D,%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22Cancel%22%7D,%22style%22:%22danger%22,%22value%22:%22display_cancellation_message%22,%22action_id%22:%22display_cancellation_message%22%7D%5D%7D%5D%7D" style="pointer-events: none">Here is the preview of our form</a> in pure Block Kit syntax</div>
 </div>
 
-The code above registers the [command handler](https://slack.dev/bolt-js/concepts/commands) that does the following:
+The code snippet below registers a [command handler](https://slack.dev/bolt-js/concepts/commands) for the `/run_jenkins_pipeline` command and performs the following steps:
 
-* Calls the `ack()` function to notify Slack that our app can handle this command.
+* Calls the `ack()` to let Slack know that our app is processing the command.
     
-* Builds a form with a header, a dropdown to choose a pipeline to run, and the **Run** and **Cancel** buttons.
+* Builds a form with a header, a dropdown menu to select a Jenkins pipeline, and two buttons: **Run** and **Cancel**.
     
-* Renders the form to the user by calling the`respond` function.
+* Sends form back to Slack by calling the `respond()` function, allowing the user to interact with it.
     
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">Slack API offers much more than just the <code>ack</code> and <code>respond</code> functions. The&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://slack.dev/bolt-js/reference/#listener-function-arguments" style="pointer-events: none">Listener function arguments</a>&nbsp;section lists all the available options.</div>
+<div data-node-type="callout-text">Slack API offers much more than just the <code>ack</code> and <code>respond</code> functions. Look at the <a target="_blank" rel="noopener noreferrer nofollow" href="https://slack.dev/bolt-js/reference/#listener-function-arguments" style="pointer-events: none">Listener function arguments</a> to explore other options for more advanced interactions.</div>
 </div>
 
-Here is what will happen if we run our bot and type `/run_jenkins_pipeline` in Slack:
+Here’s what happens when you run the bot and type `/run_jenkins_pipeline` in Slack:
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif)
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">We use hardcoded pipeline names for simplicity. However, you can implement advanced scenarios using <a target="_blank" rel="noopener noreferrer nofollow" href="https://api.slack.com/reference/block-kit/block-elements#select" style="pointer-events: none">Slack Select</a> controls that support paging, filtering, dynamic loading, and more. To explore what the Jenkins API offers, simply add <code>/api</code> to the URL of the page from which you want to get data. That opens the documentation for that specific API endpoint.</div>
+<div data-node-type="callout-text">For simplicity, we’ve hardcoded the pipeline names in this example. However, you can leverage Slack's advanced <a target="_blank" rel="noopener noreferrer nofollow" href="https://api.slack.com/reference/block-kit/block-elements#select" style="pointer-events: none">Select controls</a> to implement paging, filtering, and dynamic loading from Jenkins. To explore Jenkins API endpoints and retrieve specific data, append <code>/api</code> to any Jenkins page URL (e.g., <a target="_blank" rel="noopener noreferrer nofollow" href="http://jenkins-server/job-name/api" style="pointer-events: none"><code>http://jenkins-server/job-name/api</code></a>).</div>
 </div>
 
-So, our bot can display a form in response to a command. Let's teach the bot to run the Jenkins pipeline on the form submission.
+With the form now displaying in response to the Slack command, we can move to the next step: teaching the bot how to execute the Jenkins pipeline when the form is submitted.
 
 # Running a Parameterless Pipeline
 
-We already added the **Run** and **Cancel** buttons, but they do nothing currently.
+We’ve added the **Run** and **Cancel** buttons to the form, but they aren’t functional yet. Let’s fix that by using [action handlers](https://slack.dev/bolt-js/concepts/action-respond) to trigger the desired behavior when these buttons are clicked.
 
-To fix that, we need to use [action handlers](https://slack.dev/bolt-js/concepts/action-respond). The **Cancel** button handler is pretty straightforward:
+The **Cancel** button is straightforward to implement. Its handler simply responds with a message without taking further action. Here's how it works:
 
 ```typescript
 app.action(ActionKeys.DISPLAY_CANCELLATION_MESSAGE, async ({ack, respond}) => {
@@ -174,7 +184,16 @@ app.action(ActionKeys.DISPLAY_CANCELLATION_MESSAGE, async ({ack, respond}) => {
 });
 ```
 
-Now, let's look to the **Run** button handler:
+The **Run** button is where the magic happens. When a user clicks **Run**, we need to do the following:
+
+1. Call `ack()` to notify Slack that we received the action.
+    
+2. Extract the selected pipeline name from `body.state.values`.
+    
+3. Start the specified Jenkins Pipeline and return a link to the running job or an error if something goes wrong.
+    
+
+Here’s the handler for the **Run** button:
 
 ```typescript
 app.action(ActionKeys.RUN_JENKINS_PIPELINE, async ({context, body, ack, respond}: AllMiddlewareArgs & SlackActionMiddlewareArgs) => {
@@ -190,9 +209,7 @@ app.action(ActionKeys.RUN_JENKINS_PIPELINE, async ({context, body, ack, respond}
 });
 ```
 
-First, we call already familiar `ack`, then we get the selected pipeline from `body.state.values` and call `JenkinsAPI.startJob` to run the specified pipeline. Finally, we respond to the user with a link to the started job or report an error.
-
-Here is the `JenkinsAPI.startJob` implementation, which is a bit tricky:
+The `JenkinsAPI.startJob` function is responsible for triggering the pipeline in Jenkins. It sends a **POST** request to the Jenkins `/build` API, which returns a **queue URL** for the job in the `location` header. After a brief delay, we send a request to the queue URL to retrieve the **running job URL** from the `queuedJobInfo.executable.url` property:
 
 ```typescript
 export class JenkinsAPI {
@@ -231,20 +248,20 @@ export class JenkinsAPI {
 }
 ```
 
-This method sends a **POST** request to the "/build" API to start the pipeline and gets the **queued** job URL from the response `location` header. After that, we request the queued job URL, hoping to get a **running** job URL from the `queuedJobInfo.executable.url` property.
-
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">This strange&nbsp;<strong>setTimeout&nbsp;</strong>call is placed in the function to give Jenkins time to start the queued job. This is an obvious <a target="_blank" rel="noopener noreferrer nofollow" href="https://www.pluralsight.com/tech-blog/forms-of-temporal-coupling/" style="pointer-events: none">temporal coupling</a> issue, but unfortunately, we can't avoid it here.</div>
+<div data-node-type="callout-text">The <code>setTimeout</code> is necessary to allow Jenkins time to move the job from the queue to execution. While it’s a bit of a hack caused by the <a target="_blank" rel="noopener noreferrer nofollow" href="https://www.pluralsight.com/tech-blog/forms-of-temporal-coupling/" style="pointer-events: none">temporal coupling</a>, it’s unavoidable here due to how Jenkins handles job queuing.</div>
 </div>
 
-Sometimes, Jenkins is not able to run the job. For example, because there is no available build agent or because the [concurrent execution is disabled](https://www.jenkins.io/doc/book/pipeline/syntax/#options) and there is a job already running. In that case, we raise an error with the `queuedJobInfo.why` description to display an error message to the user.
+In some cases, Jenkins may be unable to start the job (e.g., no available build agent or [concurrent job execution](https://www.jenkins.io/doc/book/pipeline/syntax/#options) is disabled). When this happens, we return an error message to Slack. The `queuedJobInfo.why` property contains the reason for the failure and is displayed to the user.
 
 So, let's see how it looks in action:
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif)
 
-As you can see, we also received a message about the pipeline completion. This is implemented on the Jenkins side using the [Jenkins Slack Notification plugin](https://www.jenkins.io/doc/pipeline/steps/slack/) and the following code:
+The demo shows a user receives a notification when the pipeline is completed. This is achieved using the [Jenkins Slack Notification plugin](https://www.jenkins.io/doc/pipeline/steps/slack/), which allows us to notify users directly in Slack when the job finishes.
+
+The plugin allows to map the build starter’s email to their Slack user ID and send the notification:
 
 ```typescript
   pipeline {
@@ -263,22 +280,27 @@ As you can see, we also received a message about the pipeline completion. This i
 }
 ```
 
-Here, we get the Slack user ID from the build starter's email and send a message. We also use the `botUser` and `tokenCredentialId` parameters to specify our bot token. This way, the user will see all the messages in the same Slack conversation.
+We also use the `botUser` and `tokenCredentialId` parameters to ensure the bot sends the message, creating a seamless experience where all messages appear in the same conversation.
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">The bot is designed so you can send the <code>run_jenkins_pipeline</code> command to any channel or individual messages with other people. The bot responds with <a target="_blank" rel="noopener noreferrer nofollow" href="https://api.slack.com/surfaces/messages#ephemeral" style="pointer-events: none">ephemeral messages</a>, which only you can see and won't disturb others. Meanwhile, Jenkins will always send notifications to you in the bot chat.</div>
+<div data-node-type="callout-text">You can send the <code>/run_jenkins_pipeline</code> command in any Slack channel or private message, and the bot will respond with <a target="_blank" rel="noopener noreferrer nofollow" href="https://api.slack.com/surfaces/messages#ephemeral" style="pointer-events: none">ephemeral messages</a> that only you can see, ensuring minimal disruption to others. Meanwhile, Jenkins notifications will be sent directly to you via the bot chat.</div>
 </div>
 
-# Running Pipelines From Multiple Users
+# Running Pipelines From Specific User
 
-Currently, we use a single token to access the Jenkins API. If we share our bot with the entire team, everyone will run pipelines from this user, and all messages will come to him instead of teammates. This is far from what we want.
+Currently, we use a single token to interact with the Jenkins API, which means that if our bot is shared with the entire team, all pipelines will be executed under the same user account. This creates a problem: notifications and messages about job statuses will only go to the user who provided the token rather than the individual who triggered the pipeline.
 
-To solve this, each user should specify their Jenkins token. We can use [Slack middleware](https://slack.dev/bolt-js/concepts/listener-middleware) for that: if a called listener needs access to Jenkins API, we check if the user provided Jenkins credentials. If not, a modal form prompts them to provide and save a token.
+To resolve this, each user should provide their own Jenkins API token. This allows users to run pipelines under their accounts and receive personalized notifications. We can achieve this by using [Slack middleware](https://slack.dev/bolt-js/concepts/listener-middleware) that will:
+
+* **Checks for Saved Credentials:** If the user has already provided their Jenkins credentials, we initialize the Jenkins API instance and [attach it to the context](https://tools.slack.dev/bolt-js/concepts/context/).
+    
+* **Prompt for Credentials:** If no credentials are found, we open a [modal form](https://slack.dev/bolt-js/concepts/creating-modals) that asks the user to input their Jenkins API token.
+    
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif)
 
-Here is the code of the middleware:
+Below is the implementation of the middleware:
 
 ```typescript
 export async function constructJenkinsAPI({context, client, body, next}) {
@@ -317,9 +339,7 @@ function buildJenkinsTokenModalForm(): ModalView {
 }
 ```
 
-This middleware checks whether the user has Jenkins credentials. If not, the middleware displays a [modal window](https://slack.dev/bolt-js/concepts/creating-modals) requesting the user to provide a token. If the user already has saved credentials, the middleware creates a **JenkinsAPI** instance and adds it to the Slack Bolt `context`, which [can be used to enrich requests with additional information](https://tools.slack.dev/bolt-js/concepts/context/). Thus, instead of constructing a **JenkinsAPI** instance in each listener, we use the instance from the `context`.
-
-To register that middleware, we should add it as a second parameter to each of our handler registrations:
+Also, we need to attach the middleware to all listeners that interact with Jenkins. Here’s how you register it with Slack commands and actions:
 
 ```typescript
 app.command("/run_jenkins_pipeline", constructJenkinsAPI, async ({ack, respond}) => {
@@ -331,7 +351,9 @@ app.action(ActionKeys.RUN_JENKINS_PIPELINE, constructJenkinsAPI, async ({context
 });
 ```
 
-The next piece is the [Slack view listener](https://slack.dev/bolt-js/concepts/view-submissions) that handles dialog window submission and stores the credentials:
+The middleware will ensure every user has valid credentials before proceeding with the command or action.
+
+The next piece is implementing the [Slack view listener](https://slack.dev/bolt-js/concepts/view-submissions) called when a user submits the token form. here, we need to save user credentials and confirm the process was successful:
 
 ```typescript
 app.view(ActionKeys.SAVE_ACCESS_TOKENS, constructUser, async ({ack, body, context})=> {
@@ -378,16 +400,16 @@ export class CredentialsStore {
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">Of course, in-memory implementation is applicable only for demonstration since tokens will be lost after each application restart. I encourage you to thoughtfully consider how to store tokens securely in your environment and add the required implementation on your own. For example, a good option is to use secret storage like Hashicorp Vault combined with an established secret rerolling policy.</div>
+<div data-node-type="callout-text">This in-memory storage is just for demonstration purposes. In a production environment, you should use secure storage like <a target="_new" rel="noopener" href="https://www.vaultproject.io/" style="pointer-events: none">HashiCorp Vault</a><a target="_blank" rel="noopener noreferrer nofollow" href="https://www.vaultproject.io/" style="pointer-events: none"> or another sec</a>ret management tool to store credentials safely. Also, implementing secret rotation policy for enhanced security is a good idea.</div>
 </div>
 
-So, now we can run Jenkins pipelines as different users. Let's implement more feature use cases!
+With this setup, each team member can now run Jenkins pipelines using their own credentials.
 
 # Running a Parameterized Pipeline
 
-Let's modify our pipeline running handler to run parameterized pipelines, too.
+Now that we've handled simple, parameterless pipelines, let’s modify our bot to support running parameterized pipelines as well.
 
-Here is the listing of the new action implementation:
+In the updated handler for the `/run_jenkins_pipeline` command, we first check whether the pipeline requires parameters. If it does, we present the user with a form to input those parameters. If not, we simply run the pipeline as before:
 
 ```typescript
 app.action(ActionKeys.RUN_JENKINS_PIPELINE, async ({body, ack, respond}: AllMiddlewareArgs & SlackActionMiddlewareArgs) => {
@@ -403,7 +425,7 @@ app.action(ActionKeys.RUN_JENKINS_PIPELINE, async ({body, ack, respond}: AllMidd
 });
 ```
 
-We start with calling `jenkinsAPI.getJobParameters` method. Here is it's implementation:
+The key part here is calling the `getJobParameters` method from our Jenkins API class to retrieve the pipeline’s parameter definitions:
 
 ```typescript
 export class JenkinsAPI {
@@ -419,7 +441,7 @@ export class JenkinsAPI {
 }
 ```
 
-If the pipeline doesn't have parameters, we call the `runParameterlessPipeline` function that does the same as we implemented previously:
+If no parameters are needed, we run the pipeline immediately by calling the `runParameterlessPipeline` function. It runs parameterless pipeline the same way we implemented previously:
 
 ```typescript
 async function runParameterlessPipeline(jenkinsAPI: JenkinsAPI, pipelineId: string, pipelineDisplayName: string, respond: RespondFn) {
@@ -432,7 +454,7 @@ async function runParameterlessPipeline(jenkinsAPI: JenkinsAPI, pipelineId: stri
 }
 ```
 
-However, if the pipeline is parameterized, we call the `buildPipelineParametersForm` function to create a parameters form and display it to the user:
+For parameterized pipelines, we display a parameters form to the user. Here’s the `buildPipelineParametersForm` function that builds that form:
 
 ```typescript
 function buildPipelineParametersForm(pipelineParameters: JenkinsParameterDefinition[], pipelineDisplayName: string, pipelineId: string) {
@@ -450,7 +472,7 @@ function buildPipelineParametersForm(pipelineParameters: JenkinsParameterDefinit
 }
 ```
 
-The `mapJenkinsParametersToSlackControls` function is a bit complex because it humanizes parameter names, converts HTML to Slack markup, and more. While the full implementation is [in the repository](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/actions/helpers/mapJenkinsParametersToSlackControls.ts), here is a simplified version. As you can see, essentially, this is a simple switch case mapping:
+The `mapJenkinsParametersToSlackControls` function maps each Jenkins parameter type to the appropriate Slack UI control. While the [complete implementation](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/actions/helpers/mapJenkinsParametersToSlackControls.ts) is more complex, here’s a simplified version that handles common parameter types:
 
 ```typescript
 function mapJenkinsParametersToSlackControls(parametersDefinition) {
@@ -476,10 +498,10 @@ function mapJenkinsParametersToSlackControls(parametersDefinition) {
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">This switch case is a classic example of violating the <a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle" style="pointer-events: none">Open-Closed Principle</a>. I did this to keep the code readable for the article. However, if you need to implement many controls in your app, reworking this code to use the&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Strategy_pattern" style="pointer-events: none">Strategy</a>&nbsp;or&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Command_pattern" style="pointer-events: none">Command</a>&nbsp;pattern will be worth it.</div>
+<div data-node-type="callout-text">This switch case is a classic example of violating the <a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle" style="pointer-events: none">Open-Closed Principle</a>. If you plan to handle many control types, consider refactoring with the&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Strategy_pattern" style="pointer-events: none">strategy</a>&nbsp;or&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" href="https://en.wikipedia.org/wiki/Command_pattern" style="pointer-events: none">command</a>&nbsp;pattern for a more scalable solution.</div>
 </div>
 
-The last step to complete the use case is adding an action handler to run a parameterized pipeline after submitting the parameters form. Here, we get the submitted values and pass them to the `jenkinsAPI.startJob` method:
+The last step is implementing another action handler that triggers the pipeline with the provided parameters once the user submits the form. The submitted values are collected with the `getSlackFormValues` function and passed to the `jenkinsAPI.startJob` method:
 
 ```typescript
 app.action(ActionKeys.RUN_PARAMETERIZED_JENKINS_PIPELINE, async ({context, body, payload, ack, respond}) => {
@@ -501,7 +523,14 @@ Let's look at the complete use case in action:
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
 
-Great! Let's take the final step and teach our bot to work with interactive pipelines.
+Now, with the parameterized pipeline support in place, we can:
+
+1. Run simple, parameterless pipelines.
+    
+2. Receive Slack forms for parameterized pipelines, fill them out, and trigger the pipeline with their custom input.
+    
+
+Next, we’ll explore a more complex use case for handling interactive pipelines.
 
 # Adding Interactivity With Jenkins Input Step
 
@@ -728,24 +757,26 @@ Generally, we've covered many features of the Slack Bolt SDK and built a compreh
 
 # Wrapping Up
 
-Integrating Slack with other tools can significantly enhance your development workflow. Its true power lies in connecting multiple systems. Imagine starting your workday with a Slack bot listing your possible activities like:
+Integrating Slack with your development tools can elevate your workflow by enabling seamless communication, automation, and collaboration. The true power of such an integration is its ability to connect multiple systems and surface relevant information when needed. Imagine starting your workday with a Slack bot that does the following:
 
-* Check your recently closed tasks and offers post-actions, like updating documentation.
+* It lists tasks you've recently closed and suggests follow-up actions like updating documentation or notifying relevant stakeholders.
     
-* Display pull requests you participated in that haven't been merged yet.
+* Displays pull requests you’ve participated in that are awaiting review or haven’t been merged yet, ensuring nothing slips through the cracks.
     
-* Shows your next task and its recent updates.
+* Shows your next task, along with its recent updates or comments, so you're always in sync with ongoing discussions.
     
-* List your branches without pull requests, indicating abandoned work or forgotten experiments.
+* Lists branches you've worked on that lack pull requests, helping you identify abandoned work or unfinished experiments.
     
-* Show recent findings from automated security scans.
+* Presents recent findings from automated security scans, ensuring security issues are addressed quickly.
     
-* Highlight unresolved Slack threads in the support channel with questions for your team.
+* Highlights unresolved threads from Slack channels that need your or your team's attention, streamlining internal communication.
     
-* Show unresolved support tickets if their count is higher than usual and offer you help your teammate on call.
+* If the number of unresolved support tickets spikes, the bot could offer you to help your on-call teammate.
     
 
-Such a cohesive and automated environment can greatly improve productivity and collaboration. I hope this guide will help you create a dev environment that meets the unique needs of your team.
+By automating these workflows and integrating them into Slack, you can create a cohesive environment tailored to your team’s needs, improving productivity and collaboration.
+
+I hope this guide has equipped you with the tools and knowledge to build your Slack-powered development environment, streamlining your daily operations and enhancing your team's effectiveness.
 
 ---
 
