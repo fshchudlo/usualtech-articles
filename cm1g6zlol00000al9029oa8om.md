@@ -534,11 +534,13 @@ Next, we’ll explore a more complex use case for handling interactive pipelines
 
 # Adding Interactivity With Jenkins Input Step
 
-[Jenkins Input Step](https://www.jenkins.io/doc/pipeline/steps/pipeline-input-step/) is a very nice feature that allows you to ask for user input during pipeline execution and create interactive pipelines. If you have never seen it in action, here is how it looks in Jenkins UI:
+The [Jenkins Input Step](https://www.jenkins.io/doc/pipeline/steps/pipeline-input-step/) allows you to create interactive pipelines by asking for user input during pipeline execution. If you have never seen it in action, here is how it looks in Jenkins UI:
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png)
 
-I found the Input Step feature especially useful when developing a new delivery pipeline for my project. Thanks to it, my team and I now have a fully automated and interactive delivery process that asks whether to send release notes and what Jira tasks to mention, what environments to roll out the update to, which of our 15 services to deploy, and in what order, and whether to roll back to a previous version if the deployment was unsuccessful.
+This can be highly useful for complex deployment processes, allowing teams to make decisions in real-time, such as determining which services to deploy or whether to roll back a deployment.
+
+This feature was especially useful when developing a new delivery pipeline for my project. It allowed me to implement a complex deployment process, allowing the team to make real-time decisions on whether to send release notes and what Jira tasks to mention, what environments to update, which services to deploy, and whether to roll back to a previous version if the deployment was unsuccessful.
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
