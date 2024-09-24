@@ -6,6 +6,7 @@ datePublished: Tue Sep 24 2024 08:46:30 GMT+0000 (Coordinated Universal Time)
 cuid: cm1g6zlol00000al9029oa8om
 slug: integrate-jenkins-and-slack
 cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1726663344033/4f8a8a2d-4cfe-4484-8917-254884468ac6.png
+ogImage: https://cdn.hashnode.com/res/hashnode/image/upload/v1727176523807/287360b5-2b1e-4885-8aa5-9a0bb817ceaf.gif
 tags: productivity, slack, devops, jenkins, developer-tools, devex
 
 ---
