@@ -10,11 +10,11 @@ tags: productivity, slack, devops, jenkins, developer-tools, devex
 
 ---
 
-One of the biggest challenges to developer productivity is context switching caused by disjointed, poorly integrated systems such as CI/CD systems, source control, task trackers, messengers, and observability tools.
+One of the biggest challenges to developer productivity is context switching, which is caused by poorly integrated CI/CD, source control, task trackers, and observability tools.
 
-These systems can often be integrated with plugins, but the integration is usually limited. Sometimes, essential features are missing, leading to repeatable hops between systems and manual work.
+Some systems use plugins for integration, but it's often limited. Sometimes, important features are missing, causing repeated switching between systems and manual work.
 
-Fortunately, most of these systems have APIs, allowing us to create highly customized integrations that meet our needs. Over the years in engineering, I have found that Slack Messenger is often the best place for building automation since it has a comprehensive API and SDKs and allows the creation of custom UIs and commands.
+Fortunately, most of these systems have APIs, which let us create custom integrations to fit our needs. Over the years in engineering, I've found that Slack Messenger is often the best place for building automation. It has a comprehensive API and SDK, allowing the creation of custom UIs and commands.
 
 In this article, we will leverage the official [Slack Bolt](https://api.slack.com/bolt) SDK to manage the execution of all kinds of Jenkins pipelines from Slack.
 
@@ -22,7 +22,9 @@ Here is a demo of one of the scenarios to give you an idea of what we'll impleme
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
 
-The complete source code can be found [here on GitHub](https://github.com/fshchudlo/jenkins-slack-connector). While I used TypeScript, Slack [also offers SDKs for Java and Python](https://slack.dev/).
+You can find the complete source from this article [here on GitHub](https://github.com/fshchudlo/jenkins-slack-connector).
+
+I used TypeScript, but Slack [also offers SDKs for Java and Python](https://slack.dev/).
 
 # Preparing the Environment
 
@@ -41,7 +43,7 @@ After registering and installing the app into the Slack workspace, we need to [o
 
 ### Bootstrapping an Application Repository
 
-You can simply clone [my repository](https://github.com/fshchudlo/jenkins-slack-connector) and follow the README.md or continue following the [Getting Started guide](https://slack.dev/bolt-js/getting-started/#setting-up-your-project) to bootstrap the application.
+You can simply clone [my repository](https://github.com/fshchudlo/jenkins-slack-connector) and follow the README.md. Alternatively, you can continue following the [Slack Bolt Getting Started guide](https://slack.dev/bolt-js/getting-started/#setting-up-your-project) to bootstrap the application.
 
 First, we need to install some npm dependencies:
 
