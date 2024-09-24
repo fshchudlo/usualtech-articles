@@ -507,7 +507,7 @@ Great! Let's take the final step and teach our bot to work with interactive pipe
 
 [![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png)
 
-I found the Input Step feature especially useful when <mark>developing a new delivery pipeline for my project.</mark> Thanks to it, my team and I now have a fully automated and interactive delivery process that asks whether to send release notes and what Jira tasks to mention, what environments to roll out the update to, which of our 15 services to deploy, and in what order, and whether to roll back to a previous version if the deployment was unsuccessful.
+I found the Input Step feature especially useful when developing a new delivery pipeline for my project. Thanks to it, my team and I now have a fully automated and interactive delivery process that asks whether to send release notes and what Jira tasks to mention, what environments to roll out the update to, which of our 15 services to deploy, and in what order, and whether to roll back to a previous version if the deployment was unsuccessful.
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
