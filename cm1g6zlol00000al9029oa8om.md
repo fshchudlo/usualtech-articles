@@ -287,7 +287,7 @@ We also use the `botUser` and `tokenCredentialId` parameters to ensure the bot s
 <div data-node-type="callout-text">You can send the <code>/run_jenkins_pipeline</code> command in any Slack channel or private message, and the bot will respond with <a target="_blank" rel="noopener noreferrer nofollow" href="https://api.slack.com/surfaces/messages#ephemeral" style="pointer-events: none">ephemeral messages</a> that only you can see, ensuring minimal disruption to others. Meanwhile, Jenkins notifications will be sent directly to you via the bot chat.</div>
 </div>
 
-# Running Pipelines From Specific User
+# Running Pipelines On Behalf Of the User
 
 Currently, we use a single token to interact with the Jenkins API, which means that if our bot is shared with the entire team, all pipelines will be executed under the same user account. This creates a problem: notifications and messages about job statuses will only go to the user who provided the token rather than the individual who triggered the pipeline.
 
