@@ -115,7 +115,7 @@ Now, store the token and your Jenkins login information in environment variables
 
 Finally, to test your setup, you can add the following sample pipelines to Jenkins:
 
-Finally, we need some pipelines to play. You can simply add these [three sample pipelines](https://github.com/fshchudlo/jenkins-slack-connector/tree/main/.assets/sample-pipelines) to your Jenkins.
+Finally, we need some pipelines to test. You can simply add these [three sample pipelines](https://github.com/fshchudlo/jenkins-slack-connector/tree/main/.assets/sample-pipelines) to your Jenkins.
 
 Now that everything is set up, we’re ready to dive into the code!
 
@@ -202,7 +202,7 @@ app.action(ActionKeys.RUN_JENKINS_PIPELINE, async ({context, body, ack, respond}
 
     try {
         const startedJobUrl = await context.jenkinsAPI.startJob(selectedPipelineOption.value);
-        await respond(`:rocket: Here is the started ${link(pipelineDisplayName, startedJobUrl)} pipeline`);
+        await respond(`:rocket: Here is the running ${link(pipelineDisplayName, startedJobUrl)} pipeline`);
     } catch (error) {
         await respond({blocks: errorMessage(`Unable to run \`${pipelineDisplayName}\` pipeline`, error)});
     }
