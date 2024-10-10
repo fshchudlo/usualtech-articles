@@ -20,7 +20,7 @@ In this article, we’ll leverage the [Slack Bolt SDK](https://api.slack.com/bol
 
 Here is a preview of one of the scenarios we'll implement. A user sends a Slack command, selects a pipeline, and Slack generates a form to capture pipeline parameters. Once the parameters are filled, the user clicks "Run," and the pipeline is triggered
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
+[![Example of running parameterized Jenkins pipeline with the Slack bot](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
 
 The full source code for this project is [available on GitHub](https://github.com/fshchudlo/jenkins-slack-connector), and while I used TypeScript, Slack also supports [Java and Python SDKs](https://slack.dev/) for similar implementations.
 
@@ -162,7 +162,7 @@ The code snippet below registers a [command handler](https://slack.dev/bolt-js/c
 
 Here’s what happens when you run the bot and type `/run_jenkins_pipeline` in Slack:
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif)
+[![Chosing Jenkins pipeline with a Slack action and from built on top of Slack Blocks Kit](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788422626/b3a510fd-db83-4329-8c37-a7ee78c5e685.gif)
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
@@ -257,7 +257,7 @@ In some cases, Jenkins may be unable to start the job (e.g., no available build 
 
 So, let's see how it looks in action:
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif)
+[![Example of running parameterless Jenkins pipeline with the Slack bot](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789052807/72804be2-a5fc-44e1-889b-8a0328c8d5a4.gif)
 
 The demo shows a user receives a notification when the pipeline is completed. This is achieved using the [Jenkins Slack Notification plugin](https://www.jenkins.io/doc/pipeline/steps/slack/), which allows us to notify users directly in Slack when the job finishes.
 
@@ -298,7 +298,7 @@ To resolve this, each user should provide their own Jenkins API token. This allo
 * **Prompt for Credentials:** If no credentials are found, we open a [modal form](https://slack.dev/bolt-js/concepts/creating-modals) that asks the user to input their Jenkins API token.
     
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif)
+[![Example of token reqest form built with Slack Bolt SDK and Slack Blocks Kit](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725788103293/fb003f32-54d4-4613-a086-44019832ba21.gif)
 
 Below is the implementation of the middleware:
 
@@ -521,7 +521,7 @@ app.action(ActionKeys.RUN_PARAMETERIZED_JENKINS_PIPELINE, async ({context, body,
 
 Let's look at the complete use case in action:
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
+[![Example of running parameterized Jenkins pipeline from Slack bolt built on top of Slack Bolt SDK and Slack Blocks Kit](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
 
 Now, with the parameterized pipeline support in place, we can:
 
@@ -536,7 +536,7 @@ Next, we’ll explore a more complex use case for handling interactive pipelines
 
 The [Jenkins Input Step](https://www.jenkins.io/doc/pipeline/steps/pipeline-input-step/) allows you to create interactive pipelines by asking for user input during pipeline execution. If you have never seen it in action, here is how it looks in Jenkins UI:
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png)
+[![Pipeline interface for an interactive example showing stages and a form for user input, with options to continue or abort.](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725636025169/99a7db4a-d4f6-4a28-bb42-9e2fdae77f84.png)
 
 This can be highly useful for complex deployment processes, allowing teams to make decisions in real-time, such as determining which services to deploy or whether to roll back a deployment.
 
@@ -746,7 +746,7 @@ The code of the `jenkinsAPI.abortJobPendingInput` method is very straightforward
 
 Well, we're finally done! Let's see the magic in action:
 
-[![](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789485490/100290b8-399b-4c70-b389-fed9e2859735.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789485490/100290b8-399b-4c70-b389-fed9e2859735.gif)
+[![Screenshot of Slack bot displaying interactive input steps from the running Jenkins pipeline](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789485490/100290b8-399b-4c70-b389-fed9e2859735.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725789485490/100290b8-399b-4c70-b389-fed9e2859735.gif)
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
