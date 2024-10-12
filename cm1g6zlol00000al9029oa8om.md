@@ -472,7 +472,7 @@ function buildPipelineParametersForm(pipelineParameters: JenkinsParameterDefinit
 }
 ```
 
-The `mapJenkinsParametersToSlackControls` function maps each Jenkins parameter type to the appropriate Slack UI control. While the [complete implementation](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/actions/helpers/mapJenkinsParametersToSlackControls.ts) is more complex, here’s a simplified version that handles common parameter types:
+The `mapJenkinsParametersToSlackControls` function maps each Jenkins parameter type to the appropriate Slack UI control. While the [complete implementation](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/src/actions/helpers/mapJenkinsParametersToSlackControls.ts) is more complex, here’s a simplified version that handles common parameter types:
 
 ```typescript
 function mapJenkinsParametersToSlackControls(parametersDefinition) {
