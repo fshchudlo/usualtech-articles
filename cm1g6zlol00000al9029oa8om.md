@@ -10,27 +10,31 @@ tags: productivity, slack, devops, jenkins, developer-tools, devex
 
 ---
 
-One of the biggest blockers to developer productivity is context switching — constantly jumping between CI/CD pipelines, source control, task tracker, and observability tools.
+As engineers, we rely on various tools to support our work: IDEs, source control systems, task trackers, CI/CD pipelines, and observability platforms. While each of these tools is invaluable, together, they create a significant drawback: *there are simply too many of them*.
 
-While some platforms offer plugins to bridge the gaps, they’re often limited in scope. Critical features can be missing, forcing developers to toggle between tools and workflows.
+How many different tools do you need to roll out a change to production and verify that it was deployed successfully?
 
-Fortunately, most of these tools offer APIs, so we can build custom integrations that align with our needs. Through my engineering experience, I’ve found that Slack is an ideal hub for automating tasks. With its powerful API and SDK, we can create custom UIs, commands, and workflows — all within the chat interface teams already use.
+This abundance introduces context switching, which can seriously harm developer productivity. Some tools offer plugins to bridge the gaps, but these are often too generic and still require developers to hop between them to complete a meaningful task.
 
-In this article, we’ll leverage the [Slack Bolt SDK](https://api.slack.com/bolt) to manage pipeline executions without leaving the Slack interface.
+Fortunately, we can address this issue by building custom integrations tailored to our needs. But where should these integrations live?
 
-Here is a preview of one of the scenarios we'll implement. A user sends a Slack command, selects a pipeline, and Slack generates a form to capture pipeline parameters. Once the parameters are filled, the user clicks "Run," and the pipeline is triggered
+For my team, Slack has become the perfect hub for these integrations. Unlike the IDE, where focus is key, Slack is where we naturally transition into collaborative or operational tasks. Additionally, it has robust API and SDK, making it an ideal platform to centralize workflows, automate tasks, and streamline processes without disrupting developers’ focus.
+
+This article demonstrates how we integrated Slack with Jenkins to manage pipeline executions entirely within Slack. It’s just one example of how automation can simplify workflows, allowing us to almost forget about the Jenkins UI.
+
+The complete source code for this project is [available on GitHub](https://github.com/fshchudlo/jenkins-slack-connector). While I used TypeScript, Slack also provides [Java and Python SDKs](https://slack.dev/).
+
+Below is a preview of a basic scenario: a user sends a Slack command, selects a pipeline, fills in parameters via a generated form, and triggers the pipeline—all without leaving Slack.
 
 [![Example of running parameterized Jenkins pipeline with the Slack bot](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1725790363593/afb3def0-00ba-4e22-b835-b884332bf433.gif)
-
-The full source code for this project is [available on GitHub](https://github.com/fshchudlo/jenkins-slack-connector), and while I used TypeScript, Slack also supports [Java and Python SDKs](https://slack.dev/) for similar implementations.
 
 # Preparing the Environment
 
 ### Registering a new Slack application
 
-To get started, we need to create a new Slack application. I recommend setting up a separate Slack workspace for testing and follow the ["Create an app"](https://slack.dev/bolt-js/getting-started/#create-an-app) section in the Slack Bolt Getting Started guide.
+To get started, we need to create a new Slack application. I recommend setting up a separate Slack workspace for testing and following the ["Create an app"](https://slack.dev/bolt-js/getting-started/#create-an-app) section in the Slack Bolt Getting Started guide.
 
-You can import a [prepared manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) during configuration to streamline the process. This file will automatically configure the necessary scopes, enable event handling, and register the required Slack command.
+To streamline the process, you can import a [prepared manifest file](https://github.com/fshchudlo/jenkins-slack-connector/blob/main/.assets/slack_app_manifest.yml) during configuration. This file will automatically configure the necessary scopes, enable event handling, and register the required Slack command.
 
 Once you've registered and installed the app in your Slack workspace, you’ll need to obtain [two tokens](https://slack.dev/bolt-js/getting-started/#tokens-and-installing-apps):
 
@@ -84,9 +88,9 @@ export const AppConfig = {
 
 You'll also need to export the Slack tokens from the previous step or place them in the `.env` file:
 
-* `SLACK_APP_TOKEN` (App token, starts with `xapp-`)
+* `SLACK_APP_TOKEN` (App token starts with `xapp-`)
     
-* `SLACK_BOT_TOKEN` (Bot token, starts with `xoxb-`)
+* `SLACK_BOT_TOKEN` (Bot token starts with `xoxb-`)
     
 
 ### Preparing Jenkins
