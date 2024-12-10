@@ -20,7 +20,7 @@ Fortunately, we can address this issue by building custom integrations tailored 
 
 For my team, Slack has become the perfect hub for these integrations. Unlike the IDE, where focus is key, Slack is where we naturally transition into collaborative or operational tasks. Additionally, it has robust API and SDK, making it an ideal platform to centralize workflows, automate tasks, and streamline processes without disrupting developers’ focus.
 
-This article demonstrates how we integrated Slack with Jenkins to manage pipeline executions entirely within Slack. It’s just one example of how automation can simplify workflows, allowing us to almost forget about the Jenkins UI.
+The Slack API has a learning curve, but adding new integrations becomes straightforward once you overcome it. This article aims to guide you through that initial learning curve with a comprehensive, step-by-step approach, helping you quickly reach a point where implementing the automation you need is easy. We’ll integrate Slack with Jenkins to manage pipeline executions entirely within Slack.
 
 The complete source code for this project is [available on GitHub](https://github.com/fshchudlo/jenkins-slack-connector). While I used TypeScript, Slack also provides [Java and Python SDKs](https://slack.dev/).
 
