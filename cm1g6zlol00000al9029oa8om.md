@@ -544,7 +544,7 @@ The [Jenkins Input Step](https://www.jenkins.io/doc/pipeline/steps/pipeline-inpu
 
 This can be highly useful for complex deployment processes, allowing teams to make decisions in real-time, such as determining which services to deploy or whether to roll back a deployment.
 
-This feature was especially useful when developing a new delivery pipeline for my project. It allowed me to implement a complex deployment process, allowing the team to make real-time decisions on whether to send release notes and what Jira tasks to mention, what environments to update, which services to deploy, and whether to roll back to a previous version if the deployment was unsuccessful.
+This feature was especially useful when [developing a new delivery pipeline](https://ordinarytech.blog/dora-metrics) for my project. It allowed me to implement a complex deployment process, allowing the team to make real-time decisions on whether to send release notes and what Jira tasks to mention, what environments to update, which services to deploy, and whether to roll back to a previous version if the deployment was unsuccessful.
 
 <div data-node-type="callout">
 <div data-node-type="callout-emoji">💡</div>
