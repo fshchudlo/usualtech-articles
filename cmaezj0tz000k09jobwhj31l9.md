@@ -12,31 +12,27 @@ tags: productivity, kanban, software-engineering, developer-experience, legacy-s
 
 Imagine inheriting a 25-year-old project weighed down by technical debt and a team exhausted from constant firefighting. That was my reality in 2020 when I joined a new company to take over a project that upper management had labeled "stuck."
 
-Years of mergers and acquisitions resulted in the loss of key domain experts and significant changes in product requirements, which the team struggled to manage, leaving the project in chaos.
+Years of mergers and shifting requirements had left the project chaotic, with key domain experts long gone. But over time, my team and I turned things around — today, we’re considered the most effective team in the company. That transformation took a couple of years and taught us valuable lessons.
 
-However, my team and I turned things around. The project runs smoothly today, and the team is cited as the most performant in the company. It took us a couple of years, but this journey taught us a lot.
+In [my previous article](https://ordinarytech.blog/overcoming-teammates-overload), I shared how we helped overloaded individuals. But it wasn’t just a few people — the whole team was under pressure. This piece focuses on how we addressed that team-wide overload.
 
-In [the previous article](https://ordinarytech.blog/overcoming-teammates-overload), I shared how to help overloaded team members. Unsurprisingly, this wasn’t just a few people under stress — the entire team was under pressure. In this piece, I’ll focus on how we addressed that team-wide overload.
+When I joined, teammates often said, “Stakeholders won’t let us recover the project, they just keep piling on requests.” But were the stakeholders the villains? I don’t think so. The real issue was that **stakeholders didn’t know the team’s real capacity**. And to be fair, **how could they if the team didn’t either**?
 
-When I joined, I kept hearing the same thing from teammates: “Stakeholders don’t let us address technical debt. They keep overloading us with more and more requests.”
-
-So were the stakeholders the villains? I don’t think so. The real issue was that **stakeholders didn’t understand the team’s actual capacity**. And to be fair, **how could they if the team didn’t either**?
-
-Once we started paying attention, we learned a lot about our own work and how to make it more efficient, predictable, and focused. Let’s start with uncovering the gap between expectations and what the team could realistically deliver.
+Once we started examining our own work, we uncovered a lot to improve. It started by identifying the gap between expectations and what the team could actually deliver.
 
 # What Was the Team Expected to Deliver?
 
-At the time I joined, there wasn’t much clarity around how work was structured or what the team’s actual capacity was. That’s not unusual. When you’re constantly putting out fires, it’s hard to find time to zoom out and look at the bigger picture.
+When I joined, there wasn’t much clarity around how work was structured. That’s not unusual. When you’re constantly putting out fires, it’s hard to find time to zoom out and look at the bigger picture.
 
-So I spent my first three months just observing how the team worked and what stakeholders typically expected from us. There were six engineers, and here’s how their work was *supposed* to be split:
+So I spent my first three months observing everyday work and what stakeholders typically expected from us. Here’s how work was *supposed* to be divided among our six engineers:
 
 [![A chart with three sections labeled "Epics," "Standard," and "Support+Intangible." Each section has two or three items, each prefixed with a person emoji, with labels like "Epic 1," "Standard 1," and "Support ticket 1."](https://cdn.hashnode.com/res/hashnode/image/upload/v1746089957106/276f78b1-5d64-4eab-a71e-8cac2a1a7f6e.png align="center")](https://cdn.hashnode.com/res/hashnode/image/upload/v1746089957106/276f78b1-5d64-4eab-a71e-8cac2a1a7f6e.png)
 
 <center><small>Initial expectations from the team</small></center>
 
-* **Epics** were large, high-priority initiatives. They were usually broken into multiple tasks, often involved other teams, and came with deadlines. Quality was expected from day one. My team was expected to handle three Epics at the same time.
+* **Epics**: large, high-priority initiatives. They always consist of multiple tasks, and come with deadlines. My team was expected to work on three Epics at once.
     
-* **Standards** were smaller feature requests. They typically didn’t have hard deadlines, but the team had adopted a Kanban-style SLA: Standard tasks shouldn’t sit in the backlog for more than six weeks. In theory, SLAs can be helpful. In our case, though, it backfired — this rule blurred the team’s focus, and team ended up spending time on a lot of low-value work just to meet the SLA.
+* **Standards**: smaller feature requests without natural deadlines. However, the team followed a Kanban SLA practice that tasks shouldn't stay in the backlog for more than six weeks. This rule distracted the team, leading them to focus on low-value work just to meet the SLA.
     
 * **Support** included customer issues that frontline support couldn’t solve and ad hoc requests from other teams using our system. The expectation here was a quick turnaround — basically, “fix it now”.
     
