@@ -1,5 +1,5 @@
 ---
-title: "Revitalizing a Legacy Project: Empower an Overwhelmed Team."
+title: "Empower an Overwhelmed Team."
 seoTitle: "Empowering Teams to Revitalize Legacy Projects"
 seoDescription: "Learn how a legacy software project was rescued from chaos. Discover actionable steps to reduce overload, rebuild trust, and empower teams."
 datePublished: Thu Apr 03 2025 21:00:00 GMT+0000 (Coordinated Universal Time)
@@ -10,9 +10,11 @@ tags: productivity, kanban, software-engineering, developer-experience, legacy-s
 
 ---
 
-Imagine inheriting a 25-year-old project weighed down by technical debt. The team is exhausted from constant firefighting, while stakeholders are dissatisfied with the project’s outcome and label it "stuck." Years of mergers and acquisitions resulted in the loss of key domain experts and significant changes in product requirements, which the team struggled to manage, leaving the project in chaos.
+Imagine inheriting a 25-year-old project weighed down by technical debt and a team exhausted from constant firefighting. That was my reality in 2020 when I joined a new company to take over a project that upper management had labeled "stuck."
 
-However, we turned things around. It took a couple of years, but today, instead of being seen as “stuck,” we’re often recognized as one of the most efficient teams in the company. And the journey to get here taught us a lot.
+Years of mergers and acquisitions resulted in the loss of key domain experts and significant changes in product requirements, which the team struggled to manage, leaving the project in chaos.
+
+However, my team and I turned things around. The project runs smoothly today, and the team is cited as the most performant in the company. It took us a couple of years, but this journey taught us a lot.
 
 In [the previous article](https://ordinarytech.blog/overcoming-teammates-overload), I shared how to help overloaded team members. Unsurprisingly, this wasn’t just a few people under stress — the entire team was under pressure. In this piece, I’ll focus on how we addressed that team-wide overload.
 
